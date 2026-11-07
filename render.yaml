@@ -2,15 +2,12 @@ services:
   - type: web
     name: dastavej
     runtime: docker
-    plan: starter
+    plan: free
     dockerfilePath: ./Dockerfile
     dockerContext: .
     healthCheckPath: /health
     autoDeploy: false
-    disk:
-      name: dastavej-data
-      mountPath: /data
-      sizeGB: 10
+    
     envVars:
       - key: DASTAVEJ_ENV
         value: production
