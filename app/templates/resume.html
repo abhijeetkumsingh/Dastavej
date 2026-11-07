@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+{% from "_macros.html" import dz %}
+{% block title %}Resume Analyzer{% endblock %}
+{% block content %}
+<div class="container">
+  <div class="page-head">
+    <h1>Resume Analyzer</h1>
+    <p class="muted mb-0">Get an <strong>estimated</strong> ATS-compatibility score, skill gaps, project ideas and a roadmap for your target role. Analysis runs on this server with transparent rules; no AI service is used.</p>
+  </div>
+  <div class="row g-4">
+    <div class="col-lg-5">
+      <form class="panel" id="rs-form" novalidate>
+        <h2 class="h5">Your resume</h2>
+        {{ dz('.pdf,.docx', False, 'Drop your resume (PDF or DOCX)') }}
+        <label class="form-label mt-3" for="rs-role">Target role</label>
+        <select id="rs-role" class="form-select" name="role">
+          {% for r in ['Frontend Developer','Backend Developer','Full Stack Developer','Python Developer','Software Developer','Data Analyst','Data Scientist','AI/ML Engineer','UI/UX Designer','Digital Marketing'] %}<option>{{ r }}</option>{% endfor %}
+          <option value="Custom">Custom job role…</option>
+        </select>
+        <div id="rs-custom" hidden class="mt-2"><input class="form-control" name="custom_role" maxlength="60" placeholder="e.g. Civic Tech Engineer" aria-label="Custom role name"><div class="form-text">Paste the job description below so skills can be matched.</div></div>
+        <label class="form-label mt-3" for="rs-jd">Job description (optional, recommended)</label>
+        <textarea id="rs-jd" class="form-control" name="job_description" rows="6" maxlength="20000" placeholder="Paste the job description to match keywords and skills against it"></textarea>
+        <button class="btn btn-primary w-100 mt-3" type="submit" id="rs-run">Analyse resume</button>
+        <button class="btn btn-light w-100 mt-2" type="button" id="rs-reset">Reset</button>
+        <p class="form-text mt-2 mb-0">Scanned resumes are read with OCR and may parse less accurately.</p>
+      </form>
+    </div>
+    <div class="col-lg-7"><div id="rs-out" aria-live="polite"><div class="panel muted">Your analysis will appear here.</div></div></div>
+  </div>
+</div>
+{% endblock %}
+{% block scripts %}<script src="{{ url_for('static', filename='js/resume.js') }}"></script>{% endblock %}

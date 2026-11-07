@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="csrf-token" content="{{ csrf_token }}">
+  <title>{% block title %}DASTAVEJ{% endblock %} | All Your Document Needs, One Place.</title>
+  <meta name="description" content="{% block desc %}Scan, convert, compress and manage your documents with simple and powerful tools.{% endblock %}">
+  <link rel="icon" href="data:,">
+  <link rel="stylesheet" href="{{ url_for('static', filename='vendor/bootstrap/bootstrap.min.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+<a class="skip-link" href="#main">Skip to content</a>
+<nav class="navbar navbar-expand-lg site-nav sticky-top" aria-label="Main">
+  <div class="container">
+    <a class="navbar-brand m-0" href="{{ url_for('main.index') }}" aria-label="DASTAVEJ home">
+      {% if logo_present %}<img class="brand-logo" src="{{ url_for('static', filename='images/dastavej-logo.png') }}" alt="DASTAVEJ">{% else %}<span class="wordmark"><img class="wordmark-mark" src="{{ url_for('static', filename='images/wordmark-document.svg') }}" alt="" aria-hidden="true"><span>DASTAVEJ</span></span>{% endif %}
+    </a>
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#nav" aria-controls="nav" aria-expanded="false" aria-label="Toggle navigation"><span class="navbar-toggler-icon"></span></button>
+    <div class="collapse navbar-collapse" id="nav">
+      <ul class="navbar-nav ms-auto gap-lg-1">
+        {% set items = [('home','main.index','Home'),('image-tools','main.page_image_tools','Image Tools'),('pdf-tools','main.page_pdf_tools','PDF Tools'),('scanner','main.page_scanner','Document Scanner'),('passport-photo','main.page_passport_photo','Passport Photo'),('ai-assistant','main.page_ai_assistant','AI Assistant'),('resume-analyzer','main.page_resume_analyzer','Resume Analyzer'),('converter','main.page_converter','File Converter')] %}
+        {% for key, ep, text in items %}
+        <li class="nav-item"><a class="nav-link {{ 'active' if active == key }}" {% if active == key %}aria-current="page"{% endif %} href="{{ url_for(ep) }}">{{ text }}</a></li>
+        {% endfor %}
+      </ul>
+    </div>
+  </div>
+</nav>
+<main id="main">{% block content %}{% endblock %}</main>
+<footer class="site-footer">
+  <div class="container">
+    <div class="row g-4">
+      <div class="col-md-5">
+        {% if logo_present %}<img class="brand-logo mb-2" src="{{ url_for('static', filename='images/dastavej-logo.png') }}" alt="DASTAVEJ">{% else %}<div class="wordmark mb-2"><img class="wordmark-mark" src="{{ url_for('static', filename='images/wordmark-document.svg') }}" alt="" aria-hidden="true"><span>DASTAVEJ</span></div>{% endif %}
+        <p class="muted mb-1">All Your Document Needs, One Place.</p>
+        <p class="muted small mb-0">No account needed. Files are temporary and deleted automatically after {{ file_ttl }} minutes.</p>
+      </div>
+      <div class="col-6 col-md-3">
+        <h4>Tools</h4>
+        <ul class="list-unstyled mb-0">
+          <li><a href="{{ url_for('main.page_image_tools') }}">Image Tools</a></li>
+          <li><a href="{{ url_for('main.page_pdf_tools') }}">PDF Tools</a></li>
+          <li><a href="{{ url_for('main.page_scanner') }}">Document Scanner</a></li>
+          <li><a href="{{ url_for('main.page_passport_photo') }}">Passport Photo</a></li>
+          <li><a href="{{ url_for('main.page_converter') }}">File Converter</a></li>
+        </ul>
+      </div>
+     <div class="col-6 col-md-4">
+    <h4>AI &amp; Privacy</h4>
+    <ul class="list-unstyled mb-0">
+        <li><a href="{{ url_for('main.page_ai_assistant') }}">AI Document Assistant</a></li>
+        <li><a href="{{ url_for('main.page_resume_analyzer') }}">Resume Analyzer</a></li>
+        <li><a href="{{ url_for('main.index') }}#privacy">How we handle your files</a></li>
+    </ul>
+</div>
+</div>
+
+<!-- Developer Credit -->
+<div class="footer-credit">
+    <span>Built by❤️</span>
+    <strong>Abhijeet Kumar Singh</strong>
+    <strong>Bhabua,Bihar📍</strong>
+</div>
+
+</div>
+</footer>
+<script src="{{ url_for('static', filename='vendor/bootstrap/bootstrap.bundle.min.js') }}"></script>
+<script src="{{ url_for('static', filename='js/common.js') }}"></script>
+{% block scripts %}{% endblock %}
+</body>
+</html>

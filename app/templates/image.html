@@ -1,0 +1,98 @@
+{% extends "base.html" %}
+{% from "_macros.html" import dz, actions %}
+{% block title %}Image Tools{% endblock %}
+{% block content %}
+{% set IMGS = ".jpg,.jpeg,.png,.webp" %}
+<div class="container">
+  <div class="page-head">
+    <h1>Image Tools</h1>
+    <p class="muted mb-0">Resize, compress to an exact size, convert, crop, rotate and enhance. Everything is processed on this server and deleted automatically.</p>
+  </div>
+  <div id="tabs">
+    <div class="tabbar" role="tablist" aria-label="Image tools">
+      <button type="button" data-tab="resize">Resize</button><button type="button" data-tab="compress">Compress</button>
+      <button type="button" data-tab="convert">Convert</button><button type="button" data-tab="crop">Crop</button>
+      <button type="button" data-tab="rotate">Rotate</button><button type="button" data-tab="enhance">Enhance</button>
+    </div>
+
+    <div class="tool-panel" data-panel="resize"><form class="panel tool-form" data-endpoint="/api/image/resize">
+      <h2 class="h5">Resize image</h2>
+      {{ dz(IMGS, True) }}
+      <div class="row g-3 mt-1">
+        <div class="col-6 col-md-3"><label class="form-label" for="rs-w">Width (px)</label><input id="rs-w" class="form-control" type="number" name="width" min="1" max="20000" placeholder="e.g. 800"></div>
+        <div class="col-6 col-md-3"><label class="form-label" for="rs-h">Height (px)</label><input id="rs-h" class="form-control" type="number" name="height" min="1" max="20000" placeholder="e.g. 600"></div>
+        <div class="col-6 col-md-3"><label class="form-label" for="rs-p">Or scale (%)</label><input id="rs-p" class="form-control" type="number" name="percent" min="1" max="1000" placeholder="e.g. 50"></div>
+        <div class="col-6 col-md-3"><label class="form-label" for="rs-f">Output format</label><select id="rs-f" class="form-select" name="format"><option value="same">Same as original</option><option value="jpg">JPG</option><option value="png">PNG</option><option value="webp">WebP</option></select></div>
+        <div class="col-12"><div class="form-check"><input class="form-check-input" type="checkbox" name="keep_aspect" id="rs-a" checked><label class="form-check-label" for="rs-a">Maintain aspect ratio (fits inside the width × height box)</label></div></div>
+        <div class="col-md-6"><label class="form-label" for="rs-q">Quality (JPG / WebP): </label><input id="rs-q" type="range" class="form-range" name="quality" min="40" max="100" value="90"><output>90</output></div>
+      </div>
+      {{ actions('Resize') }}
+    </form></div>
+
+    <div class="tool-panel" data-panel="compress"><form class="panel tool-form" data-endpoint="/api/image/compress">
+      <h2 class="h5">Compress image</h2>
+      {{ dz(IMGS, True) }}
+      <div class="row g-3 mt-1">
+        <div class="col-12">
+          <div class="form-check form-check-inline"><input class="form-check-input" type="radio" name="mode" id="cm-t" value="target" checked><label class="form-check-label" for="cm-t">Reach a target size</label></div>
+          <div class="form-check form-check-inline"><input class="form-check-input" type="radio" name="mode" id="cm-q" value="quality"><label class="form-check-label" for="cm-q">Set quality</label></div>
+        </div>
+        <div class="col-6 col-md-3" data-show-if="mode=target"><label class="form-label" for="cm-s">Target size</label><input id="cm-s" class="form-control" type="number" name="target_size" min="1" step="any" value="100"></div>
+        <div class="col-6 col-md-3" data-show-if="mode=target"><label class="form-label" for="cm-u">Unit</label><select id="cm-u" class="form-select" name="target_unit"><option>KB</option><option>MB</option></select></div>
+        <div class="col-md-6" data-show-if="mode=quality"><label class="form-label" for="cm-ql">Quality</label><input id="cm-ql" type="range" class="form-range" name="quality" min="10" max="95" value="70"><output>70</output></div>
+        <div class="col-6 col-md-3"><label class="form-label" for="cm-f">Output format</label><select id="cm-f" class="form-select" name="format"><option value="jpg">JPG</option><option value="webp">WebP</option><option value="png">PNG</option><option value="same">Same as original</option></select></div>
+      </div>
+      <p class="form-text mt-2 mb-0">The real file size is measured after compression. If the target can't be reached without making the image unusably small, you'll be told.</p>
+      {{ actions('Compress') }}
+    </form></div>
+
+    <div class="tool-panel" data-panel="convert"><form class="panel tool-form" data-endpoint="/api/image/convert">
+      <h2 class="h5">Convert image format</h2>
+      {{ dz(IMGS, True) }}
+      <div class="row g-3 mt-1">
+        <div class="col-6 col-md-3"><label class="form-label" for="cv-f">Convert to</label><select id="cv-f" class="form-select" name="format"><option value="jpg">JPG</option><option value="png">PNG</option><option value="webp">WebP</option></select></div>
+        <div class="col-md-6"><label class="form-label" for="cv-q">Quality (JPG / WebP)</label><input id="cv-q" type="range" class="form-range" name="quality" min="40" max="100" value="90"><output>90</output></div>
+      </div>
+      <p class="form-text mb-0">Converting transparent PNGs to JPG fills the background with white.</p>
+      {{ actions('Convert') }}
+    </form></div>
+
+    <div class="tool-panel" data-panel="crop"><form class="panel tool-form" data-endpoint="/api/image/crop" id="crop-form">
+      <h2 class="h5">Crop image</h2>
+      {{ dz(IMGS, False) }}
+      <div class="mt-3"><div class="stage" id="crop-stage" hidden></div><p class="form-text" id="crop-help" hidden>Drag the box or its corners. Values below update as you go.</p></div>
+      <div class="row g-3 mt-1">
+        <div class="col-6 col-md-3"><label class="form-label" for="cr-x">X (px)</label><input id="cr-x" class="form-control" type="number" name="x" min="0" value="0"></div>
+        <div class="col-6 col-md-3"><label class="form-label" for="cr-y">Y (px)</label><input id="cr-y" class="form-control" type="number" name="y" min="0" value="0"></div>
+        <div class="col-6 col-md-3"><label class="form-label" for="cr-w">Width (px)</label><input id="cr-w" class="form-control" type="number" name="width" min="1" value="100"></div>
+        <div class="col-6 col-md-3"><label class="form-label" for="cr-h">Height (px)</label><input id="cr-h" class="form-control" type="number" name="height" min="1" value="100"></div>
+      </div>
+      {{ actions('Crop') }}
+    </form></div>
+
+    <div class="tool-panel" data-panel="rotate"><form class="panel tool-form" data-endpoint="/api/image/rotate">
+      <h2 class="h5">Rotate image</h2>
+      {{ dz(IMGS, True) }}
+      <div class="row g-3 mt-1">
+        <div class="col-6 col-md-4"><label class="form-label" for="ro-a">Angle (degrees, clockwise)</label><input id="ro-a" class="form-control" type="number" name="angle" value="90" min="-360" max="360" step="any"></div>
+        <div class="col-6 col-md-4 d-flex align-items-end gap-2"><button class="btn btn-light" type="button" data-angle="90">90°</button><button class="btn btn-light" type="button" data-angle="180">180°</button><button class="btn btn-light" type="button" data-angle="270">270°</button></div>
+      </div>
+      {{ actions('Rotate') }}
+    </form></div>
+
+    <div class="tool-panel" data-panel="enhance"><form class="panel tool-form" data-endpoint="/api/image/enhance">
+      <h2 class="h5">Enhance image</h2>
+      {{ dz(IMGS, True) }}
+      <div class="row g-3 mt-1">
+        <div class="col-md-6"><label class="form-label" for="en-b">Brightness</label><input id="en-b" type="range" class="form-range" name="brightness" min="0.5" max="1.8" step="0.05" value="1"><output>1</output></div>
+        <div class="col-md-6"><label class="form-label" for="en-c">Contrast</label><input id="en-c" type="range" class="form-range" name="contrast" min="0.5" max="1.8" step="0.05" value="1"><output>1</output></div>
+        <div class="col-md-6"><label class="form-label" for="en-s">Sharpness</label><input id="en-s" type="range" class="form-range" name="sharpness" min="0" max="3" step="0.1" value="1"><output>1</output></div>
+        <div class="col-md-6"><label class="form-label" for="en-n">Noise reduction</label><input id="en-n" type="range" class="form-range" name="noise_reduction" min="0" max="12" step="1" value="0"><output>0</output></div>
+        <div class="col-12"><div class="form-check"><input class="form-check-input" type="checkbox" name="auto" id="en-a"><label class="form-check-label" for="en-a">Auto-contrast (stretch tones automatically)</label></div></div>
+      </div>
+      {{ actions('Enhance') }}
+    </form></div>
+  </div>
+</div>
+{% endblock %}
+{% block scripts %}<script src="{{ url_for('static', filename='js/image.js') }}"></script>{% endblock %}

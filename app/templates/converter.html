@@ -1,0 +1,65 @@
+{% extends "base.html" %}
+{% from "_macros.html" import dz, actions %}
+{% block title %}File Converter{% endblock %}
+{% block content %}
+{% set IMGS = ".jpg,.jpeg,.png,.webp" %}
+<div class="container">
+  <div class="page-head">
+    <h1>File Converter</h1>
+    <p class="muted mb-0">Only conversions this server can actually perform are enabled. Each one lists its known limitations.</p>
+  </div>
+  <div id="tabs">
+    <div class="tabbar" role="tablist" aria-label="Conversions">
+      <button type="button" data-tab="image-to-pdf">Images → PDF</button><button type="button" data-tab="pdf-to-image">PDF → JPG/PNG</button>
+      <button type="button" data-tab="docx-to-pdf">DOCX → PDF</button><button type="button" data-tab="pdf-to-docx">PDF → DOCX</button>
+      <button type="button" data-tab="pptx-to-pdf">PPTX → PDF</button><button type="button" data-tab="xlsx-to-pdf">XLSX → PDF</button>
+      <button type="button" data-tab="xlsx-to-csv">XLSX → CSV</button><button type="button" data-tab="csv-to-xlsx">CSV → XLSX</button>
+      <button type="button" data-tab="docx-to-txt">DOCX → TXT</button><button type="button" data-tab="image-format">Image formats</button>
+    </div>
+
+    <div class="tool-panel" data-panel="image-to-pdf"><form class="panel tool-form" data-endpoint="/api/convert/image-to-pdf">
+      <h2 class="h5">Images to PDF</h2><p class="note" data-limit="image-to-pdf"></p>{{ dz(IMGS, True) }}
+      <div class="row g-3 mt-1">
+        <div class="col-md-3"><label class="form-label" for="ip-s">Page size</label><select id="ip-s" class="form-select" name="page_size"><option value="a4">A4</option><option value="a3">A3</option><option value="letter">Letter</option><option value="legal">Legal</option><option value="fit">Fit to image</option><option value="custom">Custom (mm)</option></select></div>
+        <div class="col-md-3"><label class="form-label" for="ip-o">Orientation</label><select id="ip-o" class="form-select" name="orientation"><option value="auto">Auto</option><option value="portrait">Portrait</option><option value="landscape">Landscape</option></select></div>
+        <div class="col-md-3" data-show-if="page_size=a4|a3|letter|legal|custom"><label class="form-label" for="ip-m">Margin (mm)</label><input id="ip-m" class="form-control" type="number" name="margin_mm" value="10" min="0" max="50"></div>
+        <div class="col-md-3" data-show-if="page_size=custom"><label class="form-label" for="ip-w">Width (mm)</label><input id="ip-w" class="form-control" type="number" name="width_mm" value="100" min="20" max="1500"></div>
+        <div class="col-md-3" data-show-if="page_size=custom"><label class="form-label" for="ip-h">Height (mm)</label><input id="ip-h" class="form-control" type="number" name="height_mm" value="150" min="20" max="1500"></div>
+      </div>{{ actions('Create PDF') }}
+    </form></div>
+
+    <div class="tool-panel" data-panel="pdf-to-image"><form class="panel tool-form" data-endpoint="/api/convert/pdf-to-image">
+      <h2 class="h5">PDF to JPG / PNG</h2><p class="note" data-limit="pdf-to-image"></p>{{ dz('.pdf') }}
+      <div class="row g-3 mt-1">
+        <div class="col-md-3"><label class="form-label" for="pi-f">Format</label><select id="pi-f" class="form-select" name="format"><option value="jpg">JPG</option><option value="png">PNG</option></select></div>
+        <div class="col-md-3"><label class="form-label" for="pi-d">DPI</label><input id="pi-d" class="form-control" type="number" name="dpi" value="150" min="50" max="300"></div>
+        <div class="col-md-6"><label class="form-label" for="pi-p">Pages (blank = all)</label><input id="pi-p" class="form-control" name="pages" placeholder="e.g. 1-3"></div>
+      </div>{{ actions('Convert') }}
+    </form></div>
+
+    {% for id, title, ext in [('docx-to-pdf','Word to PDF','.docx'),('pptx-to-pdf','PowerPoint to PDF','.pptx'),('xlsx-to-pdf','Excel to PDF','.xlsx'),('pdf-to-docx','PDF to Word','.pdf'),('docx-to-txt','Word to text','.docx')] %}
+    <div class="tool-panel" data-panel="{{ id }}"><form class="panel tool-form" data-endpoint="/api/convert/{{ id }}">
+      <h2 class="h5">{{ title }}</h2><p class="note" data-limit="{{ id }}"></p><p class="note warn" data-unavailable="{{ id }}" hidden></p>{{ dz(ext) }}{{ actions('Convert') }}
+    </form></div>
+    {% endfor %}
+
+    <div class="tool-panel" data-panel="xlsx-to-csv"><form class="panel tool-form" data-endpoint="/api/convert/xlsx-to-csv">
+      <h2 class="h5">Excel to CSV</h2><p class="note" data-limit="xlsx-to-csv"></p>{{ dz('.xlsx') }}
+      <div class="mt-3 col-md-5"><label class="form-label" for="xc-s">Sheet name (blank = all sheets)</label><input id="xc-s" class="form-control" name="sheet" placeholder="Sheet1"></div>{{ actions('Convert') }}
+    </form></div>
+
+    <div class="tool-panel" data-panel="csv-to-xlsx"><form class="panel tool-form" data-endpoint="/api/convert/csv-to-xlsx">
+      <h2 class="h5">CSV to Excel</h2><p class="note" data-limit="csv-to-xlsx"></p>{{ dz('.csv,.txt') }}{{ actions('Convert') }}
+    </form></div>
+
+    <div class="tool-panel" data-panel="image-format"><form class="panel tool-form" data-endpoint="/api/convert/image-format">
+      <h2 class="h5">Convert image formats</h2><p class="note" data-limit="image-format"></p>{{ dz(IMGS, True) }}
+      <div class="row g-3 mt-1">
+        <div class="col-md-3"><label class="form-label" for="if-f">Convert to</label><select id="if-f" class="form-select" name="format"><option value="jpg">JPG</option><option value="png">PNG</option><option value="webp">WebP</option></select></div>
+        <div class="col-md-6"><label class="form-label" for="if-q">Quality</label><input id="if-q" type="range" class="form-range" name="quality" min="40" max="100" value="90"><output>90</output></div>
+      </div>{{ actions('Convert') }}
+    </form></div>
+  </div>
+</div>
+{% endblock %}
+{% block scripts %}<script src="{{ url_for('static', filename='js/converter.js') }}"></script>{% endblock %}

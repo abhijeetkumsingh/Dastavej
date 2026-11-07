@@ -1,0 +1,3 @@
+-r requirements.txt
+pytest>=8
+scikit-image>=0.22   # only used to generate a sample face image for passport tests (tests/face_sample.png is already included)

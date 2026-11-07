@@ -1,0 +1,22 @@
+# Runtime dependencies (versions are the ones the test-suite was run against)
+Flask>=3.1,<4
+Flask-SQLAlchemy>=3.1,<4
+Flask-Limiter>=3.8
+SQLAlchemy>=2.0
+python-dotenv>=1.0
+gunicorn>=22
+Pillow>=10.4
+# OpenCV 5 removed the Haar-cascade API used for passport face detection: keep 4.x
+opencv-python-headless>=4.10,<4.12
+numpy>=1.26
+PyMuPDF>=1.24
+pypdf>=4.0
+img2pdf>=0.5
+python-docx>=1.1
+python-pptx>=1.0
+openpyxl>=3.1
+pandas>=2.2
+pytesseract>=0.3.10
+pdf2docx>=0.5.8
+reportlab>=4.0
+google-genai>=1.0

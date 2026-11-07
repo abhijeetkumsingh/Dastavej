@@ -1,0 +1,81 @@
+{% extends "base.html" %}
+{% from "_macros.html" import dz %}
+{% block title %}Document Scanner{% endblock %}
+{% block content %}
+<div class="container">
+  <div class="page-head">
+    <h1>Document Scanner</h1>
+    <p class="muted mb-0">Capture with your camera or upload a photo. Edges are detected automatically; adjust the corners, enhance, add more pages, reorder and export one PDF.</p>
+  </div>
+  <div class="row g-4">
+    <div class="col-lg-8">
+      <div class="panel" id="step-source">
+        <h2 class="h5">1. Capture or upload a page</h2>
+        <div class="row g-3">
+          <div class="col-md-6">
+            <div class="dz-host" id="scan-dz" data-accept=".jpg,.jpeg,.png,.webp" data-label="Upload a photo of a document" data-hint="JPG, PNG or WebP"></div>
+          </div>
+          <div class="col-md-6">
+            <button class="btn btn-outline-primary w-100" type="button" id="cam-start">Use camera</button>
+            <p class="form-text mt-2 mb-0">Camera needs permission</p>
+            <div id="cam-box" hidden class="mt-2">
+              <video class="cam" id="cam-video" playsinline muted aria-label="Camera preview"></video>
+              <div class="d-flex gap-2 mt-2"><button class="btn btn-primary" type="button" id="cam-snap">Capture</button><button class="btn btn-light" type="button" id="cam-stop">Close camera</button></div>
+            </div>
+          </div>
+        </div>
+        <div class="form-check mt-3"><input class="form-check-input" type="checkbox" id="quick"><label class="form-check-label" for="quick">Quick mode: auto-scan, enhance and add each page straight away</label></div>
+        <div id="source-msg" class="mt-2" aria-live="polite"></div>
+      </div>
+
+      <div class="panel mt-3" id="step-corners" hidden>
+        <h2 class="h5">2. Adjust the corners</h2>
+        <p class="muted small" id="corner-help">Drag the four dots to the corners of the document.</p>
+        <div class="stage" id="corner-stage"></div>
+        <div class="d-flex flex-wrap gap-2 mt-3">
+          <button class="btn btn-primary" type="button" id="do-scan">Scan this page</button>
+          <button class="btn btn-light" type="button" id="skip-scan">Use whole image</button>
+          <button class="btn btn-light" type="button" id="cancel-scan">Cancel</button>
+        </div>
+        <div id="corner-msg" class="mt-2" aria-live="polite"></div>
+      </div>
+
+      <div class="panel mt-3" id="step-enhance" hidden>
+        <h2 class="h5">3. Enhance &amp; add the page</h2>
+        <div class="row g-3">
+          <div class="col-md-7"><div class="stage" id="view-stage"><img id="view-img" alt="Scanned page preview" hidden></div><div id="view-msg" aria-live="polite"></div></div>
+          <div class="col-md-5">
+            <label class="form-label" for="f-mode">Filter</label>
+            <select id="f-mode" class="form-select"><option value="enhanced">Document enhance</option><option value="original">Original colour</option><option value="gray">Grayscale</option><option value="bw">Black &amp; white</option></select>
+            <label class="form-label mt-3" for="f-bri">Brightness</label><input id="f-bri" type="range" class="form-range" min="-60" max="60" value="0">
+            <label class="form-label" for="f-con">Contrast</label><input id="f-con" type="range" class="form-range" min="0.6" max="1.8" step="0.05" value="1">
+            <div class="d-flex flex-wrap gap-2 mt-2">
+              <button class="btn btn-light btn-sm" type="button" id="rot-l">Rotate ⟲</button><button class="btn btn-light btn-sm" type="button" id="rot-r">Rotate ⟳</button>
+              <button class="btn btn-light btn-sm" type="button" id="crop-toggle">Manual crop</button>
+            </div>
+            <div id="crop-bar" class="mt-2" hidden><button class="btn btn-outline-primary btn-sm" type="button" id="crop-apply">Apply crop</button></div>
+            <button class="btn btn-primary w-100 mt-3" type="button" id="add-page">Add page to document</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-lg-4">
+      <div class="panel" id="doc-panel">
+        <h2 class="h5">Your document <span class="badge-soft" id="page-count">0 pages</span></h2>
+        <p class="muted small" id="empty-note">No pages yet. Add your first page on the left.</p>
+        <div class="thumbs" id="page-list" style="grid-template-columns:repeat(auto-fill,minmax(96px,1fr))"></div>
+        <div id="export-box" hidden>
+          <hr>
+          <label class="form-label" for="ex-size">Page size</label>
+          <select id="ex-size" class="form-select"><option value="a4">A4</option><option value="a3">A3</option><option value="letter">Letter</option><option value="legal">Legal</option><option value="original">Original size</option></select>
+          <label class="form-label mt-2" for="ex-name">File name</label><input id="ex-name" class="form-control" value="scan" maxlength="60">
+          <div class="d-flex gap-2 mt-3"><button class="btn btn-primary" type="button" id="export">Export PDF</button><button class="btn btn-light" type="button" id="new-doc">Start over</button></div>
+        </div>
+        <div class="result" id="export-result" aria-live="polite"></div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+{% block scripts %}<script src="{{ url_for('static', filename='js/scanner.js') }}"></script>{% endblock %}

@@ -1,0 +1,38 @@
+services:
+  - type: web
+    name: dastavej
+    runtime: docker
+    plan: starter
+    dockerfilePath: ./Dockerfile
+    dockerContext: .
+    healthCheckPath: /health
+    autoDeploy: false
+    disk:
+      name: dastavej-data
+      mountPath: /data
+      sizeGB: 10
+    envVars:
+      - key: DASTAVEJ_ENV
+        value: production
+      - key: SECRET_KEY
+        generateValue: true
+      - key: GEMINI_API_KEY
+        sync: false
+      - key: GEMINI_MODEL
+        value: gemini-3.8-flash
+      - key: STORAGE_DIR
+        value: /data/storage
+      - key: DATABASE_URL
+        value: sqlite:////data/dastavej.db
+      - key: FILE_TTL_MINUTES
+        value: "60"
+      - key: CLEANUP_INTERVAL_SECONDS
+        value: "300"
+      - key: OCR_LANGS
+        value: eng+hin
+      - key: TESSDATA_PREFIX
+        value: /usr/share/tesseract-ocr/5/tessdata
+      - key: SESSION_COOKIE_SECURE
+        value: "1"
+      - key: WEB_CONCURRENCY
+        value: "2"

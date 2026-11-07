@@ -1,0 +1,113 @@
+{% extends "base.html" %}
+{% from "_macros.html" import icon %}
+{% block title %}DASTAVEJ{% endblock %}
+{% block content %}
+<section class="hero">
+  <div class="container">
+    <div class="row align-items-center g-4">
+      <div class="col-lg-6">
+        <span class="eyebrow">Documents, simplified</span>
+        <h1>All Your Documents. One Simple Place.</h1>
+        <p class="lead mt-3">Scan, convert, compress and manage your documents with simple and powerful tools.</p>
+        <div class="d-flex flex-wrap gap-2 mt-4">
+          <a class="btn btn-primary" href="{{ url_for('main.page_pdf_tools') }}">Explore PDF tools</a>
+          <a class="btn btn-outline-primary" href="{{ url_for('main.page_scanner') }}">Scan a document</a>
+        </div>
+        <p class="small muted mt-4 mb-0">No sign-up. Your files stay on this server and are deleted automatically after {{ file_ttl }} minutes.</p>
+      </div>
+      <div class="col-lg-6">
+        <div class="panel" id="home-upload">
+          <h2 class="h5 mb-1">Start with a file</h2>
+          <p class="muted small mb-3">Drop a file and we'll show the tools that fit it.</p>
+          <div class="dz-host" id="home-dz" data-accept=".jpg,.jpeg,.png,.webp,.pdf,.docx,.pptx,.xlsx,.csv,.txt" data-label="Drag &amp; drop a file here, or click to browse"></div>
+          <div id="home-suggest" class="mt-3" aria-live="polite"></div>
+          <p class="small muted mt-3 mb-0"><strong>Supported:</strong> JPG, PNG, WebP, PDF, DOCX, PPTX, XLSX, CSV, TXT. Up to 50&nbsp;MB per upload.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section" id="popular">
+  <div class="container">
+    <h2 class="section-title">Popular tools</h2>
+    <p class="section-sub">The things people reach for most.</p>
+    <div class="row g-3">
+      {% set popular = [
+        ('compress','Compress image','Shrink a photo to a target size in KB or MB.', 'main.page_image_tools','compress'),
+        ('merge','Merge PDF','Combine several PDFs into one file.','main.page_pdf_tools','merge'),
+        ('scan','Scan document','Use your camera or a photo, with auto edge detection.','main.page_scanner',''),
+        ('passport','Passport photo','Standard sizes, 300 DPI, print-ready 4x6 sheet.','main.page_passport_photo',''),
+        ('convert','Image to PDF','Turn JPG or PNG images into a single PDF.','main.page_converter','image-to-pdf'),
+        ('ai','Ask your document','Questions and summaries with sources, using Gemini.','main.page_ai_assistant',''),
+        ('resume','Resume analyzer','Estimated ATS score and role-based suggestions.','main.page_resume_analyzer','') ] %}
+      {% for ic, title, desc, ep, hash in popular %}
+      <div class="col-sm-6 col-lg-4">
+        <a class="tool-card" href="{{ url_for(ep) }}{{ '#' + hash if hash }}"><span class="tool-icon">{{ icon(ic) }}</span><span><h3>{{ title }}</h3><p>{{ desc }}</p></span></a>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+
+<section class="section pt-0" id="all-tools">
+  <div class="container">
+    <h2 class="section-title">All tools</h2>
+    <p class="section-sub">Grouped by what you want to do.</p>
+    <div class="row g-4">
+      {% set cats = [
+        ('Image tools','image',[('Resize','image-tools','resize'),('Compress to target size','image-tools','compress'),('Convert JPG / PNG / WebP','image-tools','convert'),('Crop','image-tools','crop'),('Rotate','image-tools','rotate'),('Enhance','image-tools','enhance')]),
+        ('PDF tools','pdf',[('Merge','pdf-tools','merge'),('Split','pdf-tools','split'),('Compress','pdf-tools','compress'),('Rotate pages','pdf-tools','rotate'),('Organise &amp; reorder pages','pdf-tools','organize'),('Delete / extract / duplicate pages','pdf-tools','delete'),('Watermark','pdf-tools','watermark'),('Page numbers','pdf-tools','numbers'),('Sign &amp; annotate','pdf-tools','sign'),('Password protect / unlock','pdf-tools','protect'),('PDF to images or text','pdf-tools','to-images')]),
+        ('Scan &amp; photo','scan',[('Document scanner','scanner',''),('Passport photo studio','passport-photo','')]),
+        ('Convert files','convert',[('Word, PowerPoint, Excel to PDF','converter','docx-to-pdf'),('PDF to Word','converter','pdf-to-docx'),('Images to PDF','converter','image-to-pdf'),('Excel &lt;-&gt; CSV','converter','xlsx-to-csv'),('Image formats','converter','image-format')]),
+        ('AI tools','ai',[('Document assistant','ai-assistant',''),('OCR (Hindi &amp; English)','ai-assistant','ocr'),('Resume analyzer','resume-analyzer','')]) ] %}
+      {% for title, ic, links in cats %}
+      <div class="col-md-6 col-lg-4">
+        <div class="panel h-100">
+          <div class="d-flex align-items-center gap-2 mb-2"><span class="tool-icon" style="flex-basis:34px;height:34px">{{ icon(ic) }}</span><h3 class="h6 m-0">{{ title|safe }}</h3></div>
+          <ul class="list-unstyled mb-0">
+            {% for text, page, hash in links %}
+            {% set ep = {'image-tools':'main.page_image_tools','pdf-tools':'main.page_pdf_tools','scanner':'main.page_scanner','passport-photo':'main.page_passport_photo','converter':'main.page_converter','ai-assistant':'main.page_ai_assistant','resume-analyzer':'main.page_resume_analyzer'}[page] %}
+            <li class="py-1"><a href="{{ url_for(ep) }}{{ '#' + hash if hash }}">{{ text|safe }}</a></li>
+            {% endfor %}
+          </ul>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+
+<section class="section" id="how">
+  <div class="container">
+    <h2 class="section-title">How it works</h2>
+    <p class="section-sub">Three steps, no account.</p>
+    <div class="row g-4">
+      <div class="col-md-4"><div class="step-num">1</div><h3 class="h5">Add your file</h3><p class="muted">Drag it in, browse for it, or capture it with your camera.</p></div>
+      <div class="col-md-4"><div class="step-num">2</div><h3 class="h5">Choose your settings</h3><p class="muted">Pick a size, page range, format or role. You'll see exactly what was done.</p></div>
+      <div class="col-md-4"><div class="step-num">3</div><h3 class="h5">Download the result</h3><p class="muted">Get the finished file straight away. It is removed from the server automatically.</p></div>
+    </div>
+  </div>
+</section>
+
+<section class="section band-deep" id="privacy">
+  <div class="container">
+    <div class="row g-4 align-items-start">
+      <div class="col-lg-5">
+        <span class="eyebrow" style="color:#7fe0b0">Privacy</span>
+        <h2 class="section-title">Your documents are not a library. They are temporary.</h2>
+      </div>
+      <div class="col-lg-7">
+        <ul class="list-clean">
+          <li>No login, no registration and no permanent document storage.</li>
+          <li>Each upload is saved under a random name, visible only to your browser session, and deleted automatically after {{ file_ttl }} minutes (or sooner when you delete it).</li>
+          <li>Scanning, PDF, image, conversion, OCR and resume tools run entirely on this server.</li>
+          <li><strong>AI Document Assistant:</strong> only when you ask a question, summarise or analyse, the relevant text excerpts are sent to Google's Gemini API. You must confirm this each time before anything is sent.</li>
+          <li>The database keeps only technical job details (file sizes, page counts, expiry), never the contents of your documents.</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}
+{% block scripts %}<script src="{{ url_for('static', filename='js/index.js') }}"></script>{% endblock %}

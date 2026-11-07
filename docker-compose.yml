@@ -1,0 +1,16 @@
+services:
+  dastavej:
+    build: .
+    ports: ["127.0.0.1:${DASTAVEJ_HOST_PORT:-8000}:8000"]
+    env_file: .env          # must contain SECRET_KEY (and GEMINI_API_KEY if you want AI)
+    environment:
+      DASTAVEJ_ENV: production
+      STORAGE_DIR: /data/storage
+      DATABASE_URL: sqlite:////data/dastavej.db
+      TESSDATA_PREFIX: /usr/share/tesseract-ocr/5/tessdata
+    volumes: ["dastavej-data:/data"]
+    restart: unless-stopped
+    read_only: false
+    tmpfs: ["/tmp"]
+volumes:
+  dastavej-data:

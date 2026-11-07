@@ -1,0 +1,14 @@
+.env
+instance/
+__pycache__/
+*.pyc
+.pytest_cache/
+.venv/
+node_modules/
+tests/js/fixtures/
+*.part
+*.tmp
+*.log
+storage/
+uploads/
+generated/

@@ -1,0 +1,161 @@
+{% extends "base.html" %}
+{% from "_macros.html" import dz, actions %}
+{% block title %}PDF Tools{% endblock %}
+{% block content %}
+{% set PDF = ".pdf" %}
+<div class="container">
+  <div class="page-head">
+    <h1>PDF Studio</h1>
+    <p class="muted mb-0">Merge, split, compress, organise, annotate, sign and protect PDFs. Page numbers start at 1. Files are deleted automatically after {{ file_ttl }} minutes.</p>
+  </div>
+  <div id="tabs">
+    <div class="tabbar" role="tablist" aria-label="PDF tools">
+      <button type="button" data-tab="merge">Merge</button><button type="button" data-tab="split">Split</button><button type="button" data-tab="compress">Compress</button>
+      <button type="button" data-tab="organize">Organise pages</button><button type="button" data-tab="rotate">Rotate</button><button type="button" data-tab="delete">Delete pages</button>
+      <button type="button" data-tab="extract">Extract pages</button><button type="button" data-tab="duplicate">Duplicate pages</button><button type="button" data-tab="watermark">Watermark</button>
+      <button type="button" data-tab="numbers">Page numbers</button><button type="button" data-tab="sign">Sign &amp; annotate</button><button type="button" data-tab="protect">Protect</button>
+      <button type="button" data-tab="unlock">Unlock</button><button type="button" data-tab="to-images">To images</button><button type="button" data-tab="to-text">To text</button>
+    </div>
+
+    <div class="tool-panel" data-panel="merge"><form class="panel tool-form" data-endpoint="/api/pdf/merge">
+      <h2 class="h5">Merge PDFs</h2><p class="muted small">Files are merged in the order listed. Add at least two.</p>
+      {{ dz(PDF, True) }}{{ actions('Merge PDFs') }}
+    </form></div>
+
+    <div class="tool-panel" data-panel="split"><form class="panel tool-form" data-endpoint="/api/pdf/split">
+      <h2 class="h5">Split PDF</h2>
+      {{ dz(PDF) }}
+      <div class="row g-3 mt-1">
+        <div class="col-md-4"><label class="form-label" for="sp-m">Split by</label><select id="sp-m" class="form-select" name="mode"><option value="ranges">Page ranges</option><option value="each">Every page separately</option><option value="every">Every N pages</option></select></div>
+        <div class="col-md-8" data-show-if="mode=ranges"><label class="form-label" for="sp-r">Ranges (separate files with ;)</label><input id="sp-r" class="form-control" name="ranges" placeholder="1-3;4-6;7-"><div class="form-text">Example: <code>1-3;4-6</code> makes two PDFs.</div></div>
+        <div class="col-md-4" data-show-if="mode=every"><label class="form-label" for="sp-e">Pages per file</label><input id="sp-e" class="form-control" type="number" name="every" min="1" value="1"></div>
+      </div>
+      {{ actions('Split PDF') }}
+    </form></div>
+
+    <div class="tool-panel" data-panel="compress"><form class="panel tool-form" data-endpoint="/api/pdf/compress">
+      <h2 class="h5">Compress PDF</h2>
+      {{ dz(PDF) }}
+      <div class="row g-3 mt-1"><div class="col-md-4"><label class="form-label" for="pc-l">Compression level</label><select id="pc-l" class="form-select" name="level"><option value="low">Low (best quality)</option><option value="medium" selected>Medium</option><option value="high">High (smallest file)</option></select></div></div>
+      <p class="form-text mb-0">Mostly reduces embedded image size. Text-only PDFs may already be near their minimum; you'll be told if so.</p>
+      {{ actions('Compress PDF') }}
+    </form></div>
+
+    <div class="tool-panel" data-panel="organize"><div class="panel" id="org">
+      <h2 class="h5">Organise pages</h2><p class="muted small">Drag thumbnails to reorder. Click to select. Then rotate, delete, extract or duplicate the selection, or apply the new order.</p>
+      <div class="dz-host" id="org-dz" data-accept=".pdf" data-label="Drop a PDF to see its pages"></div>
+      <div class="thumbs mt-3" id="org-thumbs" aria-live="polite"></div>
+      <div class="d-flex flex-wrap gap-2 mt-3" id="org-actions" hidden>
+        <button class="btn btn-primary" type="button" data-act="apply">Apply new order</button>
+        <button class="btn btn-outline-primary" type="button" data-act="rotate">Rotate selected 90°</button>
+        <button class="btn btn-outline-primary" type="button" data-act="delete">Delete selected</button>
+        <button class="btn btn-outline-primary" type="button" data-act="extract">Extract selected</button>
+        <button class="btn btn-outline-primary" type="button" data-act="duplicate">Duplicate selected</button>
+        <button class="btn btn-light" type="button" data-act="all">Select all</button>
+      </div>
+      <div class="result" id="org-result" aria-live="polite"></div>
+    </div></div>
+
+    <div class="tool-panel" data-panel="rotate"><form class="panel tool-form" data-endpoint="/api/pdf/rotate">
+      <h2 class="h5">Rotate pages</h2>{{ dz(PDF) }}
+      <div class="row g-3 mt-1"><div class="col-md-4"><label class="form-label" for="pr-a">Angle</label><select id="pr-a" class="form-select" name="angle"><option value="90">90° clockwise</option><option value="180">180°</option><option value="270">90° counter-clockwise</option></select></div>
+      <div class="col-md-8"><label class="form-label" for="pr-p">Pages (blank = all)</label><input id="pr-p" class="form-control" name="pages" placeholder="e.g. 1,3-5"></div></div>
+      {{ actions('Rotate') }}
+    </form></div>
+
+    <div class="tool-panel" data-panel="delete"><form class="panel tool-form" data-endpoint="/api/pdf/delete-pages">
+      <h2 class="h5">Delete pages</h2>{{ dz(PDF) }}
+      <div class="mt-3"><label class="form-label" for="pd-p">Pages to delete</label><input id="pd-p" class="form-control" name="pages" placeholder="e.g. 2,5-7"></div>
+      {{ actions('Delete pages') }}
+    </form></div>
+
+    <div class="tool-panel" data-panel="extract"><form class="panel tool-form" data-endpoint="/api/pdf/extract-pages">
+      <h2 class="h5">Extract pages</h2>{{ dz(PDF) }}
+      <div class="mt-3"><label class="form-label" for="pe-p">Pages to keep in a new PDF</label><input id="pe-p" class="form-control" name="pages" placeholder="e.g. 1-3,8"></div>
+      {{ actions('Extract pages') }}
+    </form></div>
+
+    <div class="tool-panel" data-panel="duplicate"><form class="panel tool-form" data-endpoint="/api/pdf/duplicate-pages">
+      <h2 class="h5">Duplicate pages</h2>{{ dz(PDF) }}
+      <div class="mt-3"><label class="form-label" for="pu-p">Pages to duplicate</label><input id="pu-p" class="form-control" name="pages" placeholder="e.g. 1,4"><div class="form-text">Each copy is inserted right after its original.</div></div>
+      {{ actions('Duplicate pages') }}
+    </form></div>
+
+    <div class="tool-panel" data-panel="watermark"><form class="panel tool-form" data-endpoint="/api/pdf/add-watermark">
+      <h2 class="h5">Add text watermark</h2>{{ dz(PDF) }}
+      <div class="row g-3 mt-1">
+        <div class="col-md-6"><label class="form-label" for="pw-t">Watermark text</label><input id="pw-t" class="form-control" name="text" maxlength="80" placeholder="CONFIDENTIAL"><div class="form-text">Latin letters, digits and punctuation only.</div></div>
+        <div class="col-md-3"><label class="form-label" for="pw-s">Font size</label><input id="pw-s" class="form-control" type="number" name="size" min="8" max="200" value="48"></div>
+        <div class="col-md-3"><label class="form-label" for="pw-a">Angle</label><input id="pw-a" class="form-control" type="number" name="angle" min="-90" max="90" value="45"></div>
+        <div class="col-md-4"><label class="form-label" for="pw-o">Opacity</label><input id="pw-o" type="range" class="form-range" name="opacity" min="0.05" max="1" step="0.05" value="0.25"><output>0.25</output></div>
+        <div class="col-md-4"><label class="form-label" for="pw-c">Colour</label><input id="pw-c" class="form-control form-control-color" type="color" name="color" value="#808080"></div>
+        <div class="col-md-4"><label class="form-label" for="pw-p">Pages (blank = all)</label><input id="pw-p" class="form-control" name="pages" placeholder="e.g. 1-3"></div>
+      </div>
+      {{ actions('Add watermark') }}
+    </form></div>
+
+    <div class="tool-panel" data-panel="numbers"><form class="panel tool-form" data-endpoint="/api/pdf/add-page-numbers">
+      <h2 class="h5">Add page numbers</h2>{{ dz(PDF) }}
+      <div class="row g-3 mt-1">
+        <div class="col-md-4"><label class="form-label" for="pn-pos">Position</label><select id="pn-pos" class="form-select" name="position"><option value="bottom-center">Bottom centre</option><option value="bottom-right">Bottom right</option><option value="bottom-left">Bottom left</option><option value="top-center">Top centre</option><option value="top-right">Top right</option><option value="top-left">Top left</option></select></div>
+        <div class="col-md-4"><label class="form-label" for="pn-f">Format</label><input id="pn-f" class="form-control" name="format" value="Page {n} of {total}"><div class="form-text">Use {n} and {total}.</div></div>
+        <div class="col-md-2"><label class="form-label" for="pn-s">Start at</label><input id="pn-s" class="form-control" type="number" name="start" value="1" min="0"></div>
+        <div class="col-md-2"><label class="form-label" for="pn-z">Size</label><input id="pn-z" class="form-control" type="number" name="size" value="10" min="6" max="36"></div>
+      </div>
+      {{ actions('Add numbers') }}
+    </form></div>
+
+    <div class="tool-panel" data-panel="sign"><div class="panel" id="sign">
+      <h2 class="h5">Sign &amp; annotate</h2>
+      <div class="note mb-3">This adds a <strong>drawn (visual) signature</strong> and text to the page. It is <strong>not</strong> a cryptographic digital signature and does not prove who signed.</div>
+      <div class="dz-host" id="sign-dz" data-accept=".pdf" data-label="Drop the PDF to sign"></div>
+      <div id="sign-ui" hidden>
+        <div class="row g-3 mt-1">
+          <div class="col-lg-5">
+            <label class="form-label">1. Draw your signature</label>
+            <canvas class="sigpad" id="sigpad" width="840" height="300" aria-label="Signature pad"></canvas>
+            <div class="d-flex gap-2 mt-2"><button class="btn btn-light btn-sm" type="button" id="sig-clear">Clear</button></div>
+            <label class="form-label mt-3" for="sig-w">Signature width</label><input id="sig-w" type="range" class="form-range" min="10" max="60" value="28">
+            <label class="form-label mt-2" for="sig-txt">2. Or add text (click on the page to place)</label>
+            <input id="sig-txt" class="form-control" placeholder="e.g. Approved - 12 Mar 2026"><div class="form-text">Latin characters only.</div>
+            <div class="form-check form-switch mt-3"><input class="form-check-input" type="checkbox" id="mode-text"><label class="form-check-label" for="mode-text">Click places <b>text</b> (off = places signature)</label></div>
+            <label class="form-label mt-3" for="sign-page">Page</label><select id="sign-page" class="form-select"></select>
+            <ul class="list-clean small mt-3" id="sign-items"></ul>
+            <button class="btn btn-primary mt-2" type="button" id="sign-apply">Apply to PDF</button>
+          </div>
+          <div class="col-lg-7"><div class="stage" id="sign-stage"></div><p class="form-text">Click the page to place the signature or text.</p></div>
+        </div>
+      </div>
+      <div class="result" id="sign-result" aria-live="polite"></div>
+    </div></div>
+
+    <div class="tool-panel" data-panel="protect"><form class="panel tool-form" data-endpoint="/api/pdf/protect">
+      <h2 class="h5">Password-protect PDF</h2>{{ dz(PDF) }}
+      <div class="row g-3 mt-1"><div class="col-md-5"><label class="form-label" for="pp-pw">Password (4-128 characters)</label><input id="pp-pw" class="form-control" type="password" name="password" minlength="4" maxlength="128" autocomplete="new-password"><div class="form-text">AES-256 encryption. If you forget the password it cannot be recovered.</div></div></div>
+      {{ actions('Protect PDF') }}
+    </form></div>
+
+    <div class="tool-panel" data-panel="unlock"><form class="panel tool-form" data-endpoint="/api/pdf/unlock">
+      <h2 class="h5">Unlock PDF</h2><p class="muted small">Works only when you know the correct password.</p>{{ dz(PDF) }}
+      <div class="row g-3 mt-1"><div class="col-md-5"><label class="form-label" for="pk-pw">Current password</label><input id="pk-pw" class="form-control" type="password" name="password" autocomplete="off"></div></div>
+      {{ actions('Unlock PDF') }}
+    </form></div>
+
+    <div class="tool-panel" data-panel="to-images"><form class="panel tool-form" data-endpoint="/api/pdf/to-images">
+      <h2 class="h5">PDF to images</h2>{{ dz(PDF) }}
+      <div class="row g-3 mt-1">
+        <div class="col-md-3"><label class="form-label" for="pi-f">Format</label><select id="pi-f" class="form-select" name="format"><option value="png">PNG</option><option value="jpg">JPG</option></select></div>
+        <div class="col-md-3"><label class="form-label" for="pi-d">Resolution (DPI)</label><input id="pi-d" class="form-control" type="number" name="dpi" min="50" max="300" value="150"></div>
+        <div class="col-md-6"><label class="form-label" for="pi-p">Pages (blank = all)</label><input id="pi-p" class="form-control" name="pages" placeholder="e.g. 1-3"><div class="form-text">Multiple pages are downloaded as a ZIP.</div></div>
+      </div>
+      {{ actions('Convert to images') }}
+    </form></div>
+
+    <div class="tool-panel" data-panel="to-text"><form class="panel tool-form" data-endpoint="/api/pdf/to-text">
+      <h2 class="h5">PDF to text</h2><p class="muted small">Extracts the text layer. Scanned pages have none: use <a href="/ai-assistant#ocr">OCR</a> for those.</p>{{ dz(PDF) }}
+      {{ actions('Extract text') }}
+    </form></div>
+  </div>
+</div>
+{% endblock %}
+{% block scripts %}<script src="{{ url_for('static', filename='js/pdf.js') }}"></script>{% endblock %}

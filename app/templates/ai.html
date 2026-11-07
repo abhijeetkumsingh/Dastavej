@@ -1,0 +1,57 @@
+{% extends "base.html" %}
+{% from "_macros.html" import dz, actions %}
+{% block title %}AI Document Assistant{% endblock %}
+{% block content %}
+<div class="container">
+  <div class="page-head">
+    <h1>AI Document Assistant</h1>
+    <p class="muted mb-0">Ask questions about your documents and get answers with page references. Text extraction and OCR run on this server.</p>
+  </div>
+  <div id="tabs">
+    <div class="tabbar" role="tablist" aria-label="AI tools">
+      <button type="button" data-tab="chat">Ask your documents</button><button type="button" data-tab="ocr">OCR (text from scans)</button>
+    </div>
+
+    <div class="tool-panel" data-panel="chat">
+      <div class="row g-4">
+        <div class="col-lg-4">
+          <div class="panel">
+            <h2 class="h5">1. Add documents</h2>
+            <div class="dz-host" id="ai-dz" data-multiple data-accept=".pdf,.docx,.pptx,.xlsx,.csv,.txt,.jpg,.jpeg,.png" data-label="Drop up to 5 documents" data-hint="PDF, DOCX, PPTX, XLSX, CSV, TXT, JPG, PNG"></div>
+            <div class="mt-2"><label class="form-label" for="ai-lang">Scan language (OCR)</label><select id="ai-lang" class="form-select"><option value="eng+hin">English + Hindi</option><option value="eng">English</option><option value="hin">Hindi</option></select></div>
+            <button class="btn btn-primary w-100 mt-3" type="button" id="ai-upload">Read documents</button>
+            <div id="ai-docs" class="mt-3" aria-live="polite"></div>
+            <button class="btn btn-light btn-sm mt-2" type="button" id="ai-delete" hidden>Delete session &amp; files</button>
+          </div>
+          <div class="panel mt-3">
+            <h2 class="h6">Before you ask</h2>
+            <p class="small muted mb-2">Reading and OCR happen on this server. When you ask, summarise or analyse, only the <strong>relevant text excerpts</strong> are sent to Google's Gemini API.</p>
+            <div class="form-check"><input class="form-check-input" type="checkbox" id="ai-consent"><label class="form-check-label small" for="ai-consent">I agree to send relevant excerpts of my documents to Google Gemini to get answers.</label></div>
+            <div id="ai-status" class="small mt-2"></div>
+          </div>
+        </div>
+        <div class="col-lg-8">
+          <div class="panel">
+            <h2 class="h5">2. Ask</h2>
+            <div class="chat" id="chat" aria-live="polite"><div class="muted small" id="chat-empty">Add a document, then ask a question or try Summary or Analyse.</div></div>
+            <form id="ask-form" class="mt-3" novalidate>
+              <div class="input-group"><input id="ask-q" class="form-control" maxlength="2000" placeholder="e.g. What is the total amount due?" aria-label="Your question"><button class="btn btn-primary" type="submit" id="ask-btn">Ask</button></div>
+            </form>
+            <div class="d-flex flex-wrap gap-2 mt-2"><button class="btn btn-outline-primary btn-sm" type="button" id="do-summary">Summary</button><button class="btn btn-outline-primary btn-sm" type="button" id="do-analyze">Analyse document</button></div>
+            <p class="form-text mb-0">Answers cite sources like [S1]. Check important facts and numbers against the original.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="tool-panel" data-panel="ocr"><form class="panel tool-form" data-endpoint="/api/ai/ocr">
+      <h2 class="h5">OCR: extract text from scans and photos</h2>
+      <p class="note">Runs entirely on this server with Tesseract. Nothing is sent to Gemini.</p>
+      {{ dz('.pdf,.jpg,.jpeg,.png,.webp') }}
+      <div class="row g-3 mt-1"><div class="col-md-4"><label class="form-label" for="oc-l">Language</label><select id="oc-l" class="form-select" name="languages"><option value="eng+hin">English + Hindi</option><option value="eng">English</option><option value="hin">Hindi</option></select></div></div>
+      {{ actions('Extract text') }}
+    </form></div>
+  </div>
+</div>
+{% endblock %}
+{% block scripts %}<script src="{{ url_for('static', filename='js/ai.js') }}"></script>{% endblock %}
